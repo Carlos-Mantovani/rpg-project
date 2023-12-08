@@ -8,8 +8,8 @@
   </head>
   <body>
     <h1>Home Page</h1>
-    {% if username %}
-      <p>Hello, {{ username }}! You are logged in</p>
+    {% if user %}
+      <p>Hello, {{ user['username'] }}! You are logged in</p>
       <a href="/logout">Logout</a>
     {% else %}
       <p>Welcome, <a href="/login">login</a> to access the content.</p>

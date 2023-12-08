@@ -3,11 +3,24 @@ from flask_mysqldb import MySQL
 from flask_bcrypt import Bcrypt
 import os
 from dotenv import load_dotenv
+from authlib.integrations.flask_client import OAuth
 
 load_dotenv()
 
 app = Flask('__name__')
 app.secret_key = os.urandom(12)
+
+oauth = OAuth(app)
+
+oauth.register(
+    "myApp",
+    client_id = os.getenv('OAUTH2_CLIENT_ID'),
+    client_secret = os.getenv('OAUTH2_CLIENT_SECRET'),
+    client_kwargs={
+        'scope': 'openid profile email'
+    },
+    server_metadata_url=f'{os.getenv("OAUTH2_META_URL")}'
+)
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
@@ -20,8 +33,8 @@ bcrypt = Bcrypt(app)
 
 @app.route('/')
 def home():
-    if 'username' in session:
-        return render_template('home.html', username=session['username'])
+    if 'user' in session:
+        return render_template('home.html', user=session['user'])
     else:
         return render_template('home.html')
 
@@ -31,12 +44,12 @@ def login():
         username = request.form['username']
         pwd = request.form['password']
         cur = mysql.connection.cursor()
-        cur.execute(f"SELECT username, password FROM users WHERE username = '{username}'")
+        cur.execute(f"SELECT username, email, password FROM users WHERE username = '{username}'")
         user = cur.fetchone()
         print(user)
         cur.close()
-        if user and bcrypt.check_password_hash(user[1], pwd):
-            session['username'] = user[0]
+        if user and bcrypt.check_password_hash(user[2], pwd):
+            session['user'] = {'username': user[0], 'email': user[1], 'password': user[2]}
             return redirect(url_for('home'))
         else:
             return render_template('login.html', error='username or password are incorrect')
@@ -71,7 +84,18 @@ def register():
 
 @app.route('/logout')
 def logout():
-    session.pop('username', None)
+    session.pop('user', None)
+    return redirect(url_for('home'))
+
+@app.route('/google-login')
+def googleLogin():
+    return oauth.myApp.authorize_redirect(redirect_uri=url_for('googleCallback'), _external=True)
+
+@app.route('/sigin-google')
+def googleCallback():
+    token = oauth.myApp.authorize_access_token()
+    print(token)
+    session['user'] = token 
     return redirect(url_for('home'))
 
 if __name__ == '__main__':
