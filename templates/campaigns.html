@@ -17,8 +17,11 @@
     </form>
     {% if user['campaigns'] %}
       {% for campaign in user['campaigns'] %}
-        <h2>{{ campaign[0] }}</h2>
-        <p>{{ campaign[1] }}</p>
+        <h2>{{ campaign[1] }}</h2>
+        <p>{{ campaign[2] }}</p>
+        <form method="POST" action="/delete_campaign/{{ campaign[0] }}">
+        <input type="submit" value="delete">
+        </form>
       {% endfor %}
     {% endif %}
   </body>

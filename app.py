@@ -50,7 +50,7 @@ def login():
         cur.close()
         if user and bcrypt.check_password_hash(user[3], pwd):
             cur = mysql.connection.cursor()
-            cur.execute(f"SELECT name, game FROM campaigns WHERE user_id = '{user[0]}'")
+            cur.execute(f"SELECT id, name, game FROM campaigns WHERE user_id = '{user[0]}'")
             campaigns = cur.fetchall()
             session['user'] = {'id': user[0], 'username': user[1], 'email': user[2], 'campaigns': campaigns}
             print(session['user'])
@@ -105,6 +105,7 @@ def googleCallback():
 @app.route('/campaigns', methods=['GET', 'POST'])
 def campaigns():
     if 'user' in session:
+        user_id = session['user']['id']
         if request.method == 'POST':
             name = request.form['name']
             game = request.form['game']
@@ -113,15 +114,34 @@ def campaigns():
             cur = mysql.connection.cursor()
             cur.execute(f"INSERT INTO campaigns (name, game, user_id) VALUES ('{name}', '{game}', '{user_id}')")
             mysql.connection.commit()
-            cur.execute(f"SELECT name, game FROM campaigns WHERE user_id='{user_id}'")
-            campaigns = cur.fetchall();
-            print(campaigns)
-            session['user']['campaigns'] = campaigns
             cur.close()
-            return render_template('campaigns.html', user=session['user'])
+            return redirect(url_for('campaigns'))
+        cur = mysql.connection.cursor()
+        cur.execute(f"SELECT id, name, game FROM campaigns WHERE user_id='{user_id}'")
+        campaigns = cur.fetchall()
+        cur.close()
+        session['user']['campaigns'] = campaigns
         return render_template('campaigns.html', user=session['user'])
     return redirect(url_for('login'))
-        
+
+@app.route('/delete_campaign/<id>', methods=['POST'])
+def delete_campaign(id):
+    if 'user' in session:
+        user_id = session['user']['id']
+        if request.method == 'POST':
+            user_id = session['user']['id']
+            cur = mysql.connection.cursor()
+            cur.execute(f"DELETE FROM campaigns WHERE id='{id}'")
+            mysql.connection.commit()
+            cur.close()
+            return redirect(url_for('campaigns'))
+        cur = mysql.connection.cursor()
+        cur.execute(f"SELECT id, name, game FROM campaigns WHERE user_id='{user_id}'")
+        campaigns = cur.fetchall()
+        cur.close()
+        session['user']['campaigns'] = campaigns
+        return redirect(url_for('campaigns'))
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(debug=True)
