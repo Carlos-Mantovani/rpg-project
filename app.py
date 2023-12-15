@@ -44,12 +44,16 @@ def login():
         username = request.form['username']
         pwd = request.form['password']
         cur = mysql.connection.cursor()
-        cur.execute(f"SELECT username, email, password FROM users WHERE username = '{username}'")
+        cur.execute(f"SELECT id, username, email, password FROM users WHERE username = '{username}'")
         user = cur.fetchone()
         print(user)
         cur.close()
-        if user and bcrypt.check_password_hash(user[2], pwd):
-            session['user'] = {'username': user[0], 'email': user[1], 'password': user[2]}
+        if user and bcrypt.check_password_hash(user[3], pwd):
+            cur = mysql.connection.cursor()
+            cur.execute(f"SELECT name, game FROM campaigns WHERE user_id = '{user[0]}'")
+            campaigns = cur.fetchall()
+            session['user'] = {'id': user[0], 'username': user[1], 'email': user[2], 'campaigns': campaigns}
+            print(session['user'])
             return redirect(url_for('home'))
         else:
             return render_template('login.html', error='username or password are incorrect')
@@ -97,6 +101,27 @@ def googleCallback():
     print(token)
     session['user'] = token 
     return redirect(url_for('home'))
+
+@app.route('/campaigns', methods=['GET', 'POST'])
+def campaigns():
+    if 'user' in session:
+        if request.method == 'POST':
+            name = request.form['name']
+            game = request.form['game']
+            user_id = session['user']['id']
+            print(user_id)
+            cur = mysql.connection.cursor()
+            cur.execute(f"INSERT INTO campaigns (name, game, user_id) VALUES ('{name}', '{game}', '{user_id}')")
+            mysql.connection.commit()
+            cur.execute(f"SELECT name, game FROM campaigns WHERE user_id='{user_id}'")
+            campaigns = cur.fetchall();
+            print(campaigns)
+            session['user']['campaigns'] = campaigns
+            cur.close()
+            return render_template('campaigns.html', user=session['user'])
+        return render_template('campaigns.html', user=session['user'])
+    return redirect(url_for('login'))
+        
 
 if __name__ == '__main__':
     app.run(debug=True)

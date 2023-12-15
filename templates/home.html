@@ -10,6 +10,7 @@
     <h1>Home Page</h1>
     {% if user %}
       <p>Hello, {{ user['username'] }}! You are logged in</p>
+      <a href="/campaigns">Your Campaigns</a><br><br>
       <a href="/logout">Logout</a>
     {% else %}
       <p>Welcome, <a href="/login">login</a> to access the content.</p>

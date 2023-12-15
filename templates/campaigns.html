@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Campaigns</title>
+  </head>
+  <body>
+    <h1>Your campaigns</h1>
+    <h1>Create new campaign</h1>
+    <form METHOD="POST" action="/campaigns">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required><br><br>
+      <label for="game">Game System</label>
+      <input type="text" id="game" name="game" required><br><br>
+      <input type="submit" value="create"><br><br>
+    </form>
+    {% if user['campaigns'] %}
+      {% for campaign in user['campaigns'] %}
+        <h2>{{ campaign[0] }}</h2>
+        <p>{{ campaign[1] }}</p>
+      {% endfor %}
+    {% endif %}
+  </body>
+</html>
