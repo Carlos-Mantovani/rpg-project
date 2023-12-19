@@ -143,5 +143,30 @@ def delete_campaign(id):
         return redirect(url_for('campaigns'))
     return redirect(url_for('login'))
 
+@app.route('/campaign/<id>', methods=['GET'])
+def campaign_details(id):
+    if 'user' in session:
+        cur = mysql.connection.cursor()
+        cur.execute(f"SELECT id, name, game FROM campaigns WHERE id='{id}'")
+        campaign = cur.fetchone()
+        cur.execute(f"SELECT id, name, race, class FROM characters WHERE campaign_id='{id}'")
+        characters = cur.fetchall()
+        cur.close()
+        return render_template('campaign.html', user=session['user'], campaign=campaign, characters=characters)
+    return redirect(url_for('login'))
+
+@app.route('/create-character/<campaign_id>', methods=['POST'])
+def createCharacter(campaign_id):
+    if 'user' in session:
+        if request.method == 'POST':
+            name = request.form['name']
+            race = request.form['race']
+            _class = request.form['class']
+            cur = mysql.connection.cursor()
+            cur.execute(f"INSERT INTO characters (name , race, class, campaign_id) VALUES ('{name}', '{race}', '{_class}', '{campaign_id}')")
+            mysql.connection.commit()
+            cur.close()
+            return redirect(url_for('campaign_details', id=campaign_id))
+    return redirect(url_for('login'))
 if __name__ == '__main__':
     app.run(debug=True)

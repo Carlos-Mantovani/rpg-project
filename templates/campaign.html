@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/style.css" rel="stylesheet">
+    <title>{{ campaign[0] }}</title>
+  </head>
+  <body>
+    <h1>{{ campaign[1] }}</h1>
+    <h2>{{ campaign[2] }}</h2><br><br>
+    <form method="post" action="/create-character/{{ campaign[0] }}">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required><br><br>
+      <label for="name">Race/Type</label>
+      <input type="text" id="race" name="race" required><br><br>
+      <label for="name">Class/Profession</label>
+      <input type="text" id="class" name="class" required><br><br>
+      <input type="submit" value="create"><br><br>
+    </form>
+    <h2>Characters:</h2><br>
+    {% for character in characters %}
+    <h2><b>{{ character[1] }}</b></h2>
+    <p>{{ character[2] }}</p>
+    <p>{{ character[3] }}</p>
+    {% endfor %}
+  </body>
+</html>
