@@ -131,6 +131,8 @@ def delete_campaign(id):
         if request.method == 'POST':
             user_id = session['user']['id']
             cur = mysql.connection.cursor()
+            cur.execute(f"DELETE FROM characters WHERE campaign_id={id}")
+            mysql.connection.commit()
             cur.execute(f"DELETE FROM campaigns WHERE id='{id}'")
             mysql.connection.commit()
             cur.close()
@@ -168,5 +170,18 @@ def createCharacter(campaign_id):
             cur.close()
             return redirect(url_for('campaign_details', id=campaign_id))
     return redirect(url_for('login'))
+
+@app.route('/delete-character/<id>', methods=['POST'])
+def deleteCharacter(id):
+    if 'user' in session:
+        cur = mysql.connection.cursor()
+        cur.execute(f"SELECT campaign_id FROM characters WHERE id='{id}'")
+        campaign_id = cur.fetchone()[0]
+        cur.execute(f"DELETE FROM characters WHERE id='{id}'")
+        mysql.connection.commit()
+        cur.close()
+        return redirect(url_for('campaign_details', id=campaign_id))
+    return redirect(url_for('home'))
+
 if __name__ == '__main__':
     app.run(debug=True)

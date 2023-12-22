@@ -17,10 +17,11 @@
     </form>
     {% if user['campaigns'] %}
       {% for campaign in user['campaigns'] %}
+        <img src="{{url_for('static', filename='images/default_campaign_image.jpg')}}" width="350px">
         <h2>{{ campaign[1] }}</h2>
         <p>{{ campaign[2] }}</p>
         <form method="POST" action="/delete_campaign/{{ campaign[0] }}">
-        <input type="submit" value="delete">
+          <input type="submit" value="delete">
         </form>
         <a href="/campaign/{{ campaign[0] }}">Campaign characters</a>
       {% endfor %}

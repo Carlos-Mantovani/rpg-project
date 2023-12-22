@@ -23,9 +23,13 @@
     <ul id="characters">
     {% for character in characters %}
       <li class="character" data-name="{{ character[1] }}">
+      <img src="{{url_for('static', filename='images/default_character_image.jpeg')}}" width="200px">
       <h2><b>{{ character[1] }}</b></h2>
       <p>{{ character[2] }}</p>
       <p>{{ character[3] }}</p>
+      <form method="POST" action="/delete-character/{{ character[0] }}">
+        <input type="submit" value ="delete">
+      </form>
       </li>
       {% endfor %}
     </ul>
