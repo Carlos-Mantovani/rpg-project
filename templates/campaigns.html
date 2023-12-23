@@ -16,15 +16,19 @@
       <input type="submit" value="create"><br><br>
     </form>
     {% if user['campaigns'] %}
+      <ul>
       {% for campaign in user['campaigns'] %}
-        <img src="{{url_for('static', filename='images/default_campaign_image.jpg')}}" width="350px">
-        <h2>{{ campaign[1] }}</h2>
-        <p>{{ campaign[2] }}</p>
-        <form method="POST" action="/delete_campaign/{{ campaign[0] }}">
-          <input type="submit" value="delete">
-        </form>
-        <a href="/campaign/{{ campaign[0] }}">Campaign characters</a>
+        <li class="campaign" data-id="{{ campaign[0] }}">
+          <img src="{{url_for('static', filename='images/campaign_{}.jpg'.format(campaign[3]))}}" width="350px">
+          <h2>{{ campaign[1] }}</h2>
+          <p>{{ campaign[2] }}</p>
+          <a href="/campaign/{{ campaign[0] }}">Campaign characters</a><br><br>
+          <form method="POST" action="/delete_campaign/{{ campaign[0] }}">
+            <input type="submit" value="delete">
+          </form>
+        </li><br>
       {% endfor %}
+      </ul>
     {% endif %}
   </body>
 </html>

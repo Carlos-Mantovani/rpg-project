@@ -112,12 +112,12 @@ def campaigns():
             user_id = session['user']['id']
             print(user_id)
             cur = mysql.connection.cursor()
-            cur.execute(f"INSERT INTO campaigns (name, game, user_id) VALUES ('{name}', '{game}', '{user_id}')")
+            cur.execute(f"INSERT INTO campaigns (name, game, image_id user_id) VALUES ('{name}', '{game}', '1', '{user_id}')")
             mysql.connection.commit()
             cur.close()
             return redirect(url_for('campaigns'))
         cur = mysql.connection.cursor()
-        cur.execute(f"SELECT id, name, game FROM campaigns WHERE user_id='{user_id}'")
+        cur.execute(f"SELECT id, name, game, image_id FROM campaigns WHERE user_id='{user_id}'")
         campaigns = cur.fetchall()
         cur.close()
         session['user']['campaigns'] = campaigns
@@ -138,7 +138,7 @@ def delete_campaign(id):
             cur.close()
             return redirect(url_for('campaigns'))
         cur = mysql.connection.cursor()
-        cur.execute(f"SELECT id, name, game FROM campaigns WHERE user_id='{user_id}'")
+        cur.execute(f"SELECT id, name, game, image_id FROM campaigns WHERE user_id='{user_id}'")
         campaigns = cur.fetchall()
         cur.close()
         session['user']['campaigns'] = campaigns
@@ -149,9 +149,9 @@ def delete_campaign(id):
 def campaign_details(id):
     if 'user' in session:
         cur = mysql.connection.cursor()
-        cur.execute(f"SELECT id, name, game FROM campaigns WHERE id='{id}'")
+        cur.execute(f"SELECT id, name, game, image_id FROM campaigns WHERE id='{id}'")
         campaign = cur.fetchone()
-        cur.execute(f"SELECT id, name, race, class FROM characters WHERE campaign_id='{id}'")
+        cur.execute(f"SELECT id, name, race, class, image_id FROM characters WHERE campaign_id='{id}'")
         characters = cur.fetchall()
         cur.close()
         return render_template('campaign.html', user=session['user'], campaign=campaign, characters=characters)
@@ -165,7 +165,7 @@ def createCharacter(campaign_id):
             race = request.form['race']
             _class = request.form['class']
             cur = mysql.connection.cursor()
-            cur.execute(f"INSERT INTO characters (name , race, class, campaign_id) VALUES ('{name}', '{race}', '{_class}', '{campaign_id}')")
+            cur.execute(f"INSERT INTO characters (name , race, class, image_id, campaign_id) VALUES ('{name}', '{race}', '{_class}', '1', '{campaign_id}')")
             mysql.connection.commit()
             cur.close()
             return redirect(url_for('campaign_details', id=campaign_id))
@@ -182,6 +182,16 @@ def deleteCharacter(id):
         cur.close()
         return redirect(url_for('campaign_details', id=campaign_id))
     return redirect(url_for('home'))
+
+@app.route('/change-character-image/<character_id>/<image_id>', methods=['POST'])
+def changeCharacterImage(character_id, image_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"UPDATE characters SET image_id={image_id} WHERE id={character_id}")
+    mysql.connection.commit()
+    cur.execute(f"SELECT campaign_id FROM characters WHERE id={character_id}")
+    campaign_id = cur.fetchone()[0]
+    cur.close()
+    return redirect(url_for('campaign_details', id=campaign_id))
 
 if __name__ == '__main__':
     app.run(debug=True)

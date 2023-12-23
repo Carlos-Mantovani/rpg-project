@@ -22,15 +22,26 @@
     <input type="text" id="search"><br>
     <ul id="characters">
     {% for character in characters %}
-      <li class="character" data-name="{{ character[1] }}">
-      <img src="{{url_for('static', filename='images/default_character_image.jpeg')}}" width="200px">
-      <h2><b>{{ character[1] }}</b></h2>
-      <p>{{ character[2] }}</p>
-      <p>{{ character[3] }}</p>
-      <form method="POST" action="/delete-character/{{ character[0] }}">
-        <input type="submit" value ="delete">
-      </form>
-      </li>
+      <li class="character" data_id="{{ character[0] }}" data-name="{{ character[1] }}" style="width: 200px; border: 2px solid black; text-align: center;">
+        <img src="{{url_for('static', filename='images/character_{}.jpg'.format(character[4]))}}" width="200px" height="270px">
+        <h2><b>{{ character[1] }}</b></h2>
+        <p>{{ character[2] }}</p>
+        <p>{{ character[3] }}</p>
+          <button onclick="selectImage({{ character[0] }})">change image</button>
+        <div class="select-image" style="display: none;">
+          <br>
+          {% for i in range (1, 4) %}
+            <form method="POST" action="/change-character-image/{{ character[0] }}/ {{ i }}" style="display: inline">
+              <!--<img src="{{url_for('static', filename='images/character_{}.jpg'.format(i))}}" width="150px" height="200px">-->
+              <input type="image" name="submit" src="{{url_for('static', filename='images/character_{}.jpg'.format(i))}}" style="width: 150px; height: 200px;">
+            </form>
+          {% endfor %}
+        </div>
+        <br><br>
+        <form method="POST" action="/delete-character/{{ character[0] }}">
+          <input type="submit" value ="delete">
+        </form>
+      </li><br><br>
       {% endfor %}
     </ul>
   <script>
@@ -44,7 +55,17 @@
           characters[i].style.display = 'none'
         }
       }
-    })  
+    })
+    const selectImage = (id) => {
+      console.log(id)
+      const characterElement = document.querySelector(`[data_id='${id}']`)
+      const selectImageArea = characterElement.getElementsByClassName('select-image')[0]
+      if (selectImageArea.style.display == 'none') {
+        selectImageArea.style.display = 'block'
+      } else {
+        selectImageArea.style.display = 'none'
+      }
+    } 
   </script>
   </body>
 </html>
