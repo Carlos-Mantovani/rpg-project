@@ -112,7 +112,7 @@ def campaigns():
             user_id = session['user']['id']
             print(user_id)
             cur = mysql.connection.cursor()
-            cur.execute(f"INSERT INTO campaigns (name, game, image_id user_id) VALUES ('{name}', '{game}', '1', '{user_id}')")
+            cur.execute(f"INSERT INTO campaigns (name, game, image_id, user_id) VALUES ('{name}', '{game}', '1', '{user_id}')")
             mysql.connection.commit()
             cur.close()
             return redirect(url_for('campaigns'))
@@ -156,6 +156,14 @@ def campaign_details(id):
         cur.close()
         return render_template('campaign.html', user=session['user'], campaign=campaign, characters=characters)
     return redirect(url_for('login'))
+
+@app.route('/change-campaign-image/<campaign_id>/<image_id>', methods=['POST'])
+def changeCampaignImage(campaign_id, image_id):
+    cur = mysql.connection.cursor()
+    cur.execute(f"UPDATE campaigns SET image_id={image_id} WHERE id={campaign_id}")
+    mysql.connection.commit()
+    cur.close()
+    return redirect(url_for('campaigns'))
 
 @app.route('/create-character/<campaign_id>', methods=['POST'])
 def createCharacter(campaign_id):

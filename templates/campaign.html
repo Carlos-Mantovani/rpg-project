@@ -5,10 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ campaign[1] }}</title>
   </head>
-  <body>
+  <body style="text-align: center;">
     <h1>{{ campaign[1] }}</h1>
-    <h2>{{ campaign[2] }}</h2><br><br>
-    <form method="post" action="/create-character/{{ campaign[0] }}">
+    <h2>{{ campaign[2] }}</h2><br>
+    <button onClick="createCharacter()">create new character</button><br>
+    <form id="create-character-form" class="hidden" method="post" action="/create-character/{{ campaign[0] }}">
+      <br>
       <label for="name">Name</label>
       <input type="text" id="name" name="name" required><br><br>
       <label for="name">Race/Type</label>
@@ -17,17 +19,17 @@
       <input type="text" id="class" name="class" required><br><br>
       <input type="submit" value="create"><br><br>
     </form>
-    <h2>Characters:</h2><br>
-    <label for="search">Search</label>
-    <input type="text" id="search"><br>
-    <ul id="characters">
+    <h2>Characters:</h2>
+    <label for="search" style="display: inline;">Search</label>
+    <input type="text" id="search"><br><br>
+    <ul id="characters" style="list-style: none; display: flex; justify-content: center;">
     {% for character in characters %}
       <li class="character" data_id="{{ character[0] }}" data-name="{{ character[1] }}" style="width: 200px; border: 2px solid black; text-align: center;">
         <img src="{{url_for('static', filename='images/character_{}.jpg'.format(character[4]))}}" width="200px" height="270px">
         <h2><b>{{ character[1] }}</b></h2>
         <p>{{ character[2] }}</p>
         <p>{{ character[3] }}</p>
-          <button onclick="selectImage({{ character[0] }})">change image</button>
+        <button onclick="selectImage({{ character[0] }})">change image</button>
         <div class="select-image" style="display: none;">
           <br>
           {% for i in range (1, 4) %}
@@ -49,15 +51,20 @@
     const characters = document.getElementsByClassName('character')
     input.addEventListener('input', (e) => {
       for (let i = 0; i < characters.length; i++) {
-        if (characters[i].dataset.name.includes(input.value.trim())) {
-          characters[i].style.display = 'block'
+        if (characters[i].dataset.name.toUpperCase().includes(input.value.trim().toUpperCase())) {
+          characters[i].style.visibility = 'visible'
         } else {
-          characters[i].style.display = 'none'
+          characters[i].style.visibility = 'hidden'
         }
       }
     })
+
+    const createCharacter = () => {
+      const createCharacterForm = document.getElementById('create-character-form')
+      createCharacterForm.classList.toggle('hidden')
+    }
+
     const selectImage = (id) => {
-      console.log(id)
       const characterElement = document.querySelector(`[data_id='${id}']`)
       const selectImageArea = characterElement.getElementsByClassName('select-image')[0]
       if (selectImageArea.style.display == 'none') {
@@ -67,5 +74,16 @@
       }
     } 
   </script>
+  <style>
+    label {
+      display: block;
+    }
+    li {
+      margin: 0 10px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
   </body>
 </html>
